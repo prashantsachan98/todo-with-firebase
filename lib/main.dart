@@ -34,8 +34,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final db = FirebaseFirestore.instance;
   String task;
   bool isbutton;
- 
-  
 
   void showdialog(bool isUpdate, DocumentSnapshot ds) {
     GlobalKey<FormState> formkey = GlobalKey<FormState>();
@@ -61,24 +59,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 onChanged: (_val) {
                   task = _val;
-                  
                 }),
           ),
           actions: <Widget>[
             ElevatedButton(
               child: Text('Add'),
-              onPressed:  () {
-                      if (isUpdate) {
-                        db
-                            .collection('tasks')
-                            .doc(ds.id)
-                            .update({'task': task});
-                      } else
-                        db
-                            .collection('tasks')
-                            .add({'task': task, 'time': DateTime.now()});
-                      Navigator.pop(context);
-                    },
+              onPressed: () {
+                if (task == null) {
+                  return null;
+                } else if (task == '') {
+                  return null;
+                } else {
+                  if (isUpdate) {
+                    db.collection('tasks').doc(ds.id).update({'task': task});
+                  } else
+                    db
+                        .collection('tasks')
+                        .add({'task': task, 'time': DateTime.now()});
+                  Navigator.pop(context);
+                }
+              },
             )
           ],
         );
