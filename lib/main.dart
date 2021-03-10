@@ -33,54 +33,84 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController t = TextEditingController();
   final db = FirebaseFirestore.instance;
   String task;
-  bool isbutton;
+
+  TimeOfDay _selectedTime;
+  String time;
+
+  void _presentTimePicker() {
+    showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      }
+      setState(() {
+        _selectedTime = pickedDate;
+        time = _selectedTime.toString();
+      });
+    });
+  }
 
   void showdialog(bool isUpdate, DocumentSnapshot ds) {
     GlobalKey<FormState> formkey = GlobalKey<FormState>();
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: isUpdate == false ? Text('Add Todo') : Text('Update'),
-          content: Form(
-            key: formkey,
-            child: TextFormField(
-                controller: t,
-                autofocus: true,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), labelText: 'Task'),
-                validator: (_val) {
-                  if (_val.isEmpty) {
-                    return "can't be empty";
-                  } else {
-                    return null;
-                  }
-                },
-                onChanged: (_val) {
-                  task = _val;
-                }),
+        return Container(
+          child: AlertDialog(
+            scrollable: false,
+            title: isUpdate == false ? Text('Add Todo') : Text('Update'),
+            content: Form(
+              key: formkey,
+              child: TextFormField(
+                  controller: t,
+                  autofocus: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(), labelText: 'Task'),
+                  validator: (_val) {
+                    if (_val.isEmpty) {
+                      return "can't be empty";
+                    } else {
+                      return null;
+                    }
+                  },
+                  onChanged: (_val) {
+                    task = _val;
+                  }),
+            ),
+            actions: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                        onPressed: _presentTimePicker,
+                        child: Text('select Time')),
+                    ElevatedButton(
+                      child: Text('Add'),
+                      onPressed: () {
+                        if (isUpdate) {
+                          db
+                              .collection('tasks')
+                              .doc(ds.id)
+                              .update({'task': task, 'date': time});
+                        } else
+                          db.collection('tasks').add({
+                            'task': task,
+                            'time': DateTime.now(),
+                            'date': time
+                          });
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          actions: <Widget>[
-            ElevatedButton(
-              child: Text('Add'),
-              onPressed: () {
-                if (task == null) {
-                  return null;
-                } else if (task == '') {
-                  return null;
-                } else {
-                  if (isUpdate) {
-                    db.collection('tasks').doc(ds.id).update({'task': task});
-                  } else
-                    db
-                        .collection('tasks')
-                        .add({'task': task, 'time': DateTime.now()});
-                  Navigator.pop(context);
-                }
-              },
-            )
-          ],
         );
       },
     );
@@ -101,13 +131,14 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: db.collection('tasks').orderBy('time').snapshots(),
+              stream: db.collection('tasks').orderBy('date').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return ListView.builder(
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (context, index) {
                         DocumentSnapshot ds = snapshot.data.docs[index];
+
                         return Card(
                           child: ListTile(
                             trailing: InkWell(
@@ -116,6 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   db.collection('tasks').doc(ds.id).delete(),
                             ),
                             title: Text(ds['task']),
+                            subtitle: Text(ds['date']),
                             onLongPress: () {
                               showdialog(true, ds);
                             },
