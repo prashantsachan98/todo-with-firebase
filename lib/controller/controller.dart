@@ -21,7 +21,8 @@ Future<bool> signIn() async {
     print(user.uid);
 
     return Future.value(true);
-  }
+  } else
+    return Future.value(false);
 }
 
 signOutUser() {
@@ -29,8 +30,8 @@ signOutUser() {
 }
 
 signInAnon() async {
-   UserCredential result = await auth.signInAnonymously();
-    User user = result.user;
+  UserCredential result = await auth.signInAnonymously();
+  User user = result.user;
 
-    print(user.uid);
+  print(user.uid);
 }
