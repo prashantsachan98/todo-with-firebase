@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase/controller/controller.dart';
-import 'package:firebase/main.dart';
+import 'package:firebase/screen/login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +19,6 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController t = TextEditingController();
   var taskcollection = FirebaseFirestore.instance.collection('tasks');
   String task;
-  bool _taskdone = true;
   TimeOfDay _selectedTime;
   String time;
   final DateTime now = DateTime.now();
@@ -27,6 +26,13 @@ class _MyHomePageState extends State<MyHomePage> {
   final DateFormat formattermonth = DateFormat(DateFormat.MONTH);
   final DateFormat formatteryear = DateFormat(DateFormat.YEAR);
   final DateFormat formatterWeekDay = DateFormat(DateFormat.WEEKDAY);
+
+  int calculateDifference(DateTime date) {
+    DateTime now = DateTime.now();
+    return DateTime(date.year, date.month, date.day)
+        .difference(DateTime(now.year, now.month, now.day))
+        .inDays;
+  }
 
   void _presentTimePicker() {
     showTimePicker(
@@ -203,7 +209,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (context, index) {
                         DocumentSnapshot ds = snapshot.data.docs[index];
-
                         return Dismissible(
                           background: ListTile(
                             leading: Icon(
@@ -284,6 +289,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               onLongPress: () {
                                 showdialog(true, ds);
                               },
+                              onTap: () {
+                                signOutUser();
+                                Get.off(Login());
+                              },
                             ),
                           ),
                         );
@@ -291,7 +300,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 } else if (snapshot.hasError) {
                   return CircularProgressIndicator();
                 } else
-                  return CircularProgressIndicator();
+                  return SizedBox(
+                    height: 0,
+                  );
               },
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+//import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -26,6 +27,7 @@ Future<bool> signIn() async {
 }
 
 signOutUser() {
+  FirebaseAuth.instance.signOut();
   googleSignIn.disconnect();
 }
 
@@ -34,4 +36,12 @@ signInAnon() async {
   User user = result.user;
 
   print(user.uid);
+}
+
+Future<bool> loginCheck() async {
+  var test = FirebaseAuth.instance.currentUser;
+  if (test == null) {
+    return await Future.value(false);
+  }
+  return await Future.value(true);
 }
