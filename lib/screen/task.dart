@@ -14,13 +14,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  DateTime _selectedDate = DateTime.now();
   final String uid;
   _MyHomePageState(this.uid);
   TextEditingController t = TextEditingController();
   var taskcollection = FirebaseFirestore.instance.collection('tasks');
   String task;
-  TimeOfDay _selectedTime;
-  String time;
+  // TimeOfDay _selectedTime;
+  //String time;
   final DateTime now = DateTime.now();
   final DateFormat formatterDay = DateFormat(DateFormat.DAY);
   final DateFormat formattermonth = DateFormat(DateFormat.MONTH);
@@ -34,17 +35,18 @@ class _MyHomePageState extends State<MyHomePage> {
         .inDays;
   }
 
-  void _presentTimePicker() {
-    showTimePicker(
+  void _presentDatePicker() {
+    showDatePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2022),
     ).then((pickedDate) {
       if (pickedDate == null) {
         return;
       }
       setState(() {
-        _selectedTime = pickedDate;
-        time = _selectedTime.toString();
+        _selectedDate = pickedDate;
       });
     });
   }
@@ -84,8 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                        onPressed: _presentTimePicker,
-                        child: Text('select Time')),
+                        onPressed: _presentDatePicker,
+                        child: Text('select date')),
                     ElevatedButton(
                       child: Text('Add'),
                       onPressed: () {
@@ -96,18 +98,19 @@ class _MyHomePageState extends State<MyHomePage> {
                               .doc(ds.id)
                               .update({
                             'task': task,
-                            'time': DateTime.now(),
-                            'taskTime': time
+                            'taskDate': formatterDay.format(now),
+                            'time': DateTime.now()
                           });
                         } else
                           taskcollection.doc(uid).collection('task').add({
                             'task': task,
-                            'time': DateTime.now(),
-                            'taskTime': time,
-                            'taskDone': false
+                            'taskDate': formatterDay.format(_selectedDate),
+                            'taskDone': false,
+                            'time': DateTime.now()
                           });
                         Navigator.pop(context);
-                        time = DateTime.now().toString();
+                        _selectedDate = DateTime.now();
+                        t.clear();
                       },
                     ),
                   ],
@@ -201,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
               stream: taskcollection
                   .doc(uid)
                   .collection('task')
-                  .orderBy('taskTime')
+                  .orderBy('time')
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
@@ -209,68 +212,78 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (context, index) {
                         DocumentSnapshot ds = snapshot.data.docs[index];
-                        return Dismissible(
-                          background: ListTile(
-                            leading: Icon(
-                              Icons.delete,
-                              color: Colors.black26,
+                        if (int.parse(ds['taskDate']) <
+                            int.parse(formatterDay.format(DateTime.now()))) {
+                          taskcollection
+                              .doc(uid)
+                              .collection('task')
+                              .doc(ds.id)
+                              .delete();
+                        }
+                        if (formatterDay.format(DateTime.now()) ==
+                            ds['taskDate']) {
+                          return Dismissible(
+                            background: ListTile(
+                              leading: Icon(
+                                Icons.delete,
+                                color: Colors.black26,
+                              ),
                             ),
-                          ),
-                          direction: DismissDirection.startToEnd,
-                          resizeDuration: Duration(milliseconds: 200),
-                          key: Key(snapshot.data.docs[index].id),
-                          onDismissed: (direction) {
-                            taskcollection
-                                .doc(uid)
-                                .collection('task')
-                                .doc(ds.id)
-                                .delete();
-                          },
-                          child: Card(
-                            elevation: 0,
-                            child: ListTile(
-                              trailing: InkWell(
-                                splashColor: Colors.white,
-                                onTap: () {
-                                  setState(() {
-                                    ds['taskDone']
-                                        ? taskcollection
-                                            .doc(uid)
-                                            .collection('task')
-                                            .doc(ds.id)
-                                            .update({'taskDone': false})
-                                        : taskcollection
-                                            .doc(uid)
-                                            .collection('task')
-                                            .doc(ds.id)
-                                            .update({'taskDone': true});
-                                  });
-                                },
-                                child: Container(
-                                  margin: EdgeInsets.all(15),
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: ds['taskDone']
-                                          ? Colors.green[400]
-                                          : Colors.grey),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: ds['taskDone']
-                                        ? Icon(
-                                            Icons.check,
-                                            size: 20.0,
-                                            color: Colors.white,
-                                          )
-                                        : Icon(
-                                            Icons.circle,
-                                            size: 20.0,
-                                            color: Colors.white,
-                                          ),
+                            direction: DismissDirection.startToEnd,
+                            resizeDuration: Duration(milliseconds: 200),
+                            key: Key(snapshot.data.docs[index].id),
+                            onDismissed: (direction) {
+                              taskcollection
+                                  .doc(uid)
+                                  .collection('task')
+                                  .doc(ds.id)
+                                  .delete();
+                            },
+                            child: Card(
+                              elevation: 0,
+                              child: ListTile(
+                                trailing: InkWell(
+                                  splashColor: Colors.white,
+                                  onTap: () {
+                                    setState(() {
+                                      ds['taskDone']
+                                          ? taskcollection
+                                              .doc(uid)
+                                              .collection('task')
+                                              .doc(ds.id)
+                                              .update({'taskDone': false})
+                                          : taskcollection
+                                              .doc(uid)
+                                              .collection('task')
+                                              .doc(ds.id)
+                                              .update({'taskDone': true});
+                                    });
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.all(15),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: ds['taskDone']
+                                            ? Colors.green[400]
+                                            : Colors.grey),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: ds['taskDone']
+                                          ? Icon(
+                                              Icons.check,
+                                              size: 20.0,
+                                              color: Colors.white,
+                                            )
+                                          : Icon(
+                                              Icons.circle,
+                                              size: 20.0,
+                                              color: Colors.white,
+                                            ),
+                                    ),
                                   ),
                                 ),
-                              ),
 
-                              /* leading: InkWell(
+                                /* leading: InkWell(
                                 child: Icon(Icons.delete),
                                 onTap: () => taskcollection
                                     .doc(uid)
@@ -278,24 +291,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                     .doc(ds.id)
                                     .delete(),
                               ),*/
-                              title: Text(ds['task'],
-                                  style: GoogleFonts.roboto(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                      color: ds['taskDone']
-                                          ? Colors.black26
-                                          : Colors.black54)),
-                              //subtitle: Text(ds['taskTime']),
-                              onLongPress: () {
-                                showdialog(true, ds);
-                              },
-                              onTap: () {
-                                signOutUser();
-                                Get.off(Login());
-                              },
+                                title: Text(ds['task'],
+                                    style: GoogleFonts.roboto(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                        color: ds['taskDone']
+                                            ? Colors.black26
+                                            : Colors.black54)),
+                                //subtitle: Text(ds['taskTime']),
+                                onLongPress: () {
+                                  showdialog(true, ds);
+                                },
+                                onTap: () {
+                                  signOutUser();
+                                  Get.off(Login());
+                                },
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        } else
+                          return SizedBox(
+                            height: 0,
+                          );
                       });
                 } else if (snapshot.hasError) {
                   return CircularProgressIndicator();

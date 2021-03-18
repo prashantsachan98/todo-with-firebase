@@ -34,7 +34,6 @@ signOutUser() {
 signInAnon() async {
   UserCredential result = await auth.signInAnonymously();
   User user = result.user;
-
   print(user.uid);
 }
 
