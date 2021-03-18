@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'controller/controller.dart';
 import 'screen/login.dart';
@@ -22,7 +23,9 @@ class MyApp extends StatelessWidget {
   MyApp(this.isLogin);
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     return GetMaterialApp(
+        theme: ThemeData(primaryColor: Colors.black),
         home: isLogin
             ? MyHomePage(
                 uid: test.uid,

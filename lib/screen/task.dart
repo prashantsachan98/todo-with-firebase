@@ -59,7 +59,11 @@ class _MyHomePageState extends State<MyHomePage> {
         return Container(
           child: AlertDialog(
             scrollable: false,
-            title: isUpdate == false ? Text('Add Todo') : Text('Update'),
+            title: isUpdate == false
+                ? Text(
+                    'Add Todo',
+                  )
+                : Text('Update'),
             content: Form(
               key: formkey,
               child: TextFormField(
@@ -67,7 +71,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   autofocus: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), labelText: 'Task'),
+                      border: OutlineInputBorder(),
+                      labelText: 'Task',
+                      focusColor: Colors.deepPurpleAccent),
                   validator: (_val) {
                     if (_val.isEmpty) {
                       return "can't be empty";
@@ -87,8 +93,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     TextButton(
                         onPressed: _presentDatePicker,
-                        child: Text('select date')),
+                        child: Text(
+                          'select date',
+                          style: TextStyle(color: Colors.deepPurpleAccent),
+                        )),
                     ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                              Colors.deepPurpleAccent)),
                       child: Text('Add'),
                       onPressed: () {
                         if (isUpdate) {
@@ -327,6 +339,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
+        backgroundColor: Colors.deepPurpleAccent,
         onPressed: () {
           showdialog(false, null);
         },
