@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import './task.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -44,12 +45,21 @@ class Login extends StatelessWidget {
               height: 80,
             ),
             Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Text(
+                  'todo',
+                  style: GoogleFonts.pacifico(fontSize: 40),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
                 Container(
-                    padding: EdgeInsets.all(20),
+                    padding: EdgeInsets.symmetric(horizontal: 40),
                     child: Image.asset('assets/task.png')),
-                SizedBox()
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.25,
+                ),
               ],
             ),
             Column(
@@ -57,6 +67,7 @@ class Login extends StatelessWidget {
               children: [
                 InkWell(
                   child: Container(
+                    
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.white),
