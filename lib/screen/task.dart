@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase/controller/controller.dart';
 import 'package:firebase/screen/login.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +18,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   DateTime _selectedDate;
+  final String calender = 'assets/calender.svg';
   final String uid;
   _MyHomePageState(this.uid);
   TextEditingController t = TextEditingController();
@@ -60,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context) {
         return Container(
           child: AlertDialog(
-            backgroundColor: Colors.purple[50],
+            //  backgroundColor: Colors.purple[50],
             actionsPadding: EdgeInsets.zero,
             contentPadding: EdgeInsets.fromLTRB(15, 20, 15, 0),
             scrollable: false,
@@ -69,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     'Add Todo',
                     // style: TextStyle(color: Colors.deepPurpleAccent[50]),
                   )
-                : Text('Update'),
+                : Text('Update Todo'),
             content: Form(
               key: formkey,
               child: TextFormField(
@@ -93,58 +95,60 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             actions: <Widget>[
               Container(
-                // padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.fromLTRB(0, 5, 10, 5),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      style: ButtonStyle(
-                          // backgroundColor:
-                          //   MaterialStateProperty.all(Colors.white),
-                          ),
                       onPressed: _presentDatePicker,
-                      child: Text(
-                        'select Date',
-                        style: TextStyle(color: Colors.deepPurple[300]),
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        width: 30,
+                        height: 20,
+                        //color: Colors.black,
+                        child: SvgPicture.asset(
+                          calender,
+                          color: Colors.deepPurple,
+                        ),
                       ),
+                    ),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                              Colors.deepPurpleAccent)),
+                      child: Text(isUpdate == false ? 'Add' : 'Update'),
+                      onPressed: () {
+                        if (_selectedDate == null) {
+                          _selectedDate = DateTime.now();
+                        }
+                        if (task == null) {
+                          return;
+                        } else {
+                          if (isUpdate) {
+                            taskcollection
+                                .doc(uid)
+                                .collection('task')
+                                .doc(ds.id)
+                                .update({
+                              'task': task,
+                              'taskDate': formatterDay.format(now),
+                              'time': DateTime.now()
+                            });
+                          } else
+                            taskcollection.doc(uid).collection('task').add({
+                              'task': task,
+                              'taskDate': formatterDay.format(_selectedDate),
+                              'taskDone': false,
+                              'time': DateTime.now()
+                            });
+                        }
+                        Navigator.pop(context);
+                        _selectedDate = DateTime.now();
+                        t.clear();
+                      },
                     ),
                   ],
                 ),
-              ),
-              ElevatedButton(
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(Colors.deepPurpleAccent)),
-                child: Text('Add'),
-                onPressed: () {
-                  if (_selectedDate == null) {
-                    _selectedDate = DateTime.now();
-                  }
-                  if (task == null) {
-                    return;
-                  } else {
-                    if (isUpdate) {
-                      taskcollection
-                          .doc(uid)
-                          .collection('task')
-                          .doc(ds.id)
-                          .update({
-                        'task': task,
-                        'taskDate': formatterDay.format(now),
-                        'time': DateTime.now()
-                      });
-                    } else
-                      taskcollection.doc(uid).collection('task').add({
-                        'task': task,
-                        'taskDate': formatterDay.format(_selectedDate),
-                        'taskDone': false,
-                        'time': DateTime.now()
-                      });
-                  }
-                  Navigator.pop(context);
-                  _selectedDate = DateTime.now();
-                  t.clear();
-                },
               ),
             ],
           ),
@@ -176,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
             height: 10,
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.fromLTRB(15, 0, 10, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -223,7 +227,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       color: Color.fromRGBO(1, 1, 1, 0.4)),
-                )
+                ),
+                IconButton(
+                  onPressed: () {
+                    signOutUser();
+                    Get.off(Login());
+                  },
+                  icon: Icon(Icons.exit_to_app),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                ),
               ],
             ),
           ),
@@ -333,10 +346,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onLongPress: () {
                                   showdialog(true, ds);
                                 },
-                                onTap: () {
-                                  signOutUser();
-                                  Get.off(Login());
-                                },
+                                onTap: null, //can use for this for future edits
                               ),
                             ),
                           );
@@ -348,9 +358,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 } else if (snapshot.hasError) {
                   return CircularProgressIndicator();
                 } else
-                  return SizedBox(
-                    height: 0,
-                  );
+                  return SizedBox();
               },
             ),
           ),

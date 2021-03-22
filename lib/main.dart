@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
     //SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     return GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(primaryColor: Colors.deepPurpleAccent),
+        theme: ThemeData(primarySwatch: Colors.deepPurple),
         home: isLogin
             ? MyHomePage(
                 uid: test.uid,
