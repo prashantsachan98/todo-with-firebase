@@ -1,16 +1,30 @@
-# firebase
 
-A new Flutter project.
+# TaskDo
 
-## Getting Started
+TaskDo is a ToDo List app for Task Management.
+The app is using Firebase, you have to configure it from your side to test the app.
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+## Features
+
+- google login
+- Cross platform
+
+
+
+  
+## Screenshots
+- Login page
+![App Screenshot](https://github.com/prashantsachan98/todo-with-firebase/blob/master/screenshot/Screenshot_20210805-114420390.jpg)
+
+- Add Todo
+![App Screenshot](https://github.com/prashantsachan98/todo-with-firebase/blob/master/screenshot/Screenshot_20210805-114129746.jpg)
+
+- todo list
+![App Screenshot](https://github.com/prashantsachan98/todo-with-firebase/blob/master/screenshot/Screenshot_20210805-114232102.jpg)
+
+- delete Todo
+![App Screenshot](https://github.com/prashantsachan98/todo-with-firebase/blob/master/screenshot/Screenshot_20210805-114251432.jpg)
